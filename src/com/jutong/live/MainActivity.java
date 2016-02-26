@@ -99,7 +99,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 			button01.setText("停止");
 			isStart = true;
 			livePusher
-					.startPusher("rtmp://xxxx/xxx/xxx");
+					.startPusher("rtmp://121.196.236.198:1935/myapp/liuxiang");
 
 		}
 	}
