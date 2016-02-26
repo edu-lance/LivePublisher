@@ -24,38 +24,40 @@ Android RTMP推流程序。
 ```java
     livePusher.release();
 ```
-推流器状态回调:
+设置状态监听
 ```java
-    public void onStateChange(int code){
-        switch(code){
-          //AudioRecord打开失败
-          case LiveStateChangeListener.ERROR_AUDIO_OPENED:
-            break;
-          //音频编码器打开失败
-          case LiveStateChangeListener.ERROR_AUDIO_CODEC_OPENED:
-            break;
-          //视频编码器打开失败
-          case LiveStateChangeListener.ERROR_VIDEO_CODEC_OPENED:
-            break;
-          //rtmp 初始化失败
-          case LiveStateChangeListener.ERROR_RTMP_INIT:
-            break;
-          //流媒体服务器连接失败
-          case LiveStateChangeListener.ERROR_RTMP_SERVER_CONNECT_FAILED:
-          case LiveStateChangeListener.ERROR_RTMP_STREAM_CONNECT_FAILED:
-            break;
-          //服务器连接中断
-          case LiveStateChangeListener.ERROR_RTMP_SERVER_SUSPEND:
-            break;
-          //初始化成功。需要在该状态下 开始推流
-          case LiveStateChangeListener.PREPARE_COMPLETE:
-            break;
-          //开始推流
-          case LiveStateChangeListener.PUBLISH_START:
-            break;
-          //结束推流
-          case LiveStateChangeListener.PUBLISH_STOP:
-            break;
-        }
-    }
+	public interface LiveStateChangeListener {
+	// 错误信息 非主线程调用
+	public void onErrorPusher(int code);
+	// 开始推流 非主线程调用
+	public void onStartPusher();
+	// 停止推流 非主线程调用
+	public void onStopPusher();
+}
+```
+获取错误信息:
+```java
+   	switch (code) {
+			case -100:
+				Toast.makeText(MainActivity.this, "视频预览开始失败", 0).show();
+				livePusher.stopPusher();
+				break;
+			case -101:
+				Toast.makeText(MainActivity.this, "音频录制失败", 0).show();
+				livePusher.stopPusher();
+				break;
+			case -102:
+				Toast.makeText(MainActivity.this, "音频编码器配置失败", 0).show();
+				livePusher.stopPusher();
+				break;
+			case -103:
+				Toast.makeText(MainActivity.this, "视频频编码器配置失败", 0).show();
+				livePusher.stopPusher();
+				break;
+			case -104:
+				Toast.makeText(MainActivity.this, "流媒体服务器/网络等问题", 0).show();
+				livePusher.stopPusher();
+				break;
+			}
+	}
 ```
