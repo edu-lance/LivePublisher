@@ -3,7 +3,9 @@ package com.jutong.live.pusher;
 import java.util.Iterator;
 import java.util.List;
 
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
@@ -22,7 +24,6 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 	private Camera mCamera;
 	private SurfaceHolder mHolder;
 	private VideoParam mParam;
-	private byte[] buffer;
 
 	public VideoPusher(SurfaceHolder surfaceHolder, VideoParam param,
 			PusherNative pusherNative) {
@@ -82,12 +83,14 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 			List<Size> supportedPreviewSizes = parameters
 					.getSupportedPreviewSizes();
 			Size size = supportedPreviewSizes.get(0);
+			Log.d(TAG, "支持 " + size.width + "x" + size.height);
 			int m = Math.abs(size.height * size.width - mParam.getHeight()
 					* mParam.getWidth());
 			supportedPreviewSizes.remove(0);
 			Iterator<Size> iterator = supportedPreviewSizes.iterator();
 			while (iterator.hasNext()) {
 				Size next = iterator.next();
+				Log.d(TAG, "支持 " + next.width + "x" + next.height);
 				int n = Math.abs(next.height * next.width - mParam.getHeight()
 						* mParam.getWidth());
 				if (n < m) {
@@ -103,9 +106,7 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 			parameters.getPreviewFpsRange(range);
 			Log.d(TAG, "预览帧率 fps:" + range[0] + " - " + range[1]);
 			mCamera.setParameters(parameters);
-			buffer = new byte[size.width * size.height * 3 / 2];
-			mCamera.setPreviewCallbackWithBuffer(this);
-			mCamera.addCallbackBuffer(buffer);
+			mCamera.setPreviewCallback(this);
 			mCamera.setPreviewDisplay(mHolder);
 			mCamera.startPreview();
 			mPreviewRunning = true;
@@ -140,7 +141,6 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 		if (mPusherRuning) {
 			mNative.fireVideo(data);
 		}
-		camera.addCallbackBuffer(buffer);
 	}
 
 }

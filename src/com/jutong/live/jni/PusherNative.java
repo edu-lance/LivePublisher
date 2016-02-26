@@ -1,5 +1,7 @@
 package com.jutong.live.jni;
 
+import android.util.Log;
+
 import com.jutong.live.LiveStateChangeListener;
 
 public class PusherNative {
@@ -16,6 +18,7 @@ public class PusherNative {
 	}
 
 	public void onPostNativeError(int code) {
+		Log.d("PusherNative", code+"");
 		if (null != mListener) {
 			mListener.onErrorPusher(code);
 		}

@@ -50,7 +50,8 @@ public class AudioPusher extends Pusher {
 			return;
 		}
 		mPusherRuning = false;
-		audioRecord.stop();
+		if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING)
+			audioRecord.stop();
 	}
 
 	@Override

@@ -7,10 +7,11 @@ public class VideoParam {
 	private int fps;
 	private int bitrate;
 
-	public VideoParam(int width, int height, int bitrate, int cameraId) {
+	public VideoParam(int width, int height, int bitrate,int fps, int cameraId) {
 		this.width = width;
 		this.height = height;
 		this.bitrate = bitrate;
+		this.fps = fps;
 		this.cameraId = cameraId;
 	}
 
