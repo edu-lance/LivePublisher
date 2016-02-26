@@ -1,11 +1,7 @@
 package com.jutong.live;
 
 import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
-import android.hardware.Camera.PictureCallback;
 import android.media.AudioRecord;
-import android.os.Handler;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.jutong.live.jni.PusherNative;
@@ -26,14 +22,6 @@ public class LivePusher {
 	private AudioPusher audioPusher;
 	private LiveStateChangeListener mListener;
 
-	private Handler mHandler = new Handler() {
-		public void handleMessage(android.os.Message msg) {
-			if (null != mListener) {
-				mListener.onStateChange(msg.what);
-			}
-		};
-	};
-
 	static {
 		System.loadLibrary("myjni");
 	}
@@ -43,14 +31,14 @@ public class LivePusher {
 		videoParam = new VideoParam(width, height, bitrate, cameraId);
 		audioParam = new AudioParam(sampleRate, channel);
 		mNative = new PusherNative();
-		mNative.setPusherHandler(mHandler);
 	}
 
 	public void prepare(SurfaceHolder surfaceHolder) {
 		surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		videoPusher = new VideoPusher(surfaceHolder, videoParam, mNative);
 		audioPusher = new AudioPusher(audioParam, mNative);
-		mNative.prepare();
+		videoPusher.setLiveStateChangeListener(mListener);
+		audioPusher.setLiveStateChangeListener(mListener);
 	}
 
 	public void startPusher(String url) {
@@ -60,9 +48,9 @@ public class LivePusher {
 	}
 
 	public void stopPusher() {
-		mNative.stopPusher();
 		videoPusher.stopPusher();
 		audioPusher.stopPusher();
+		mNative.stopPusher();
 	}
 
 	public void switchCamera() {
@@ -70,8 +58,10 @@ public class LivePusher {
 	}
 
 	public void relase() {
-		mHandler.removeCallbacksAndMessages(null);
 		stopPusher();
+		videoPusher.setLiveStateChangeListener(null);
+		audioPusher.setLiveStateChangeListener(null);
+		mNative.setLiveStateChangeListener(null);
 		videoPusher.release();
 		audioPusher.release();
 		mNative.release();
@@ -79,6 +69,14 @@ public class LivePusher {
 
 	public void setLiveStateChangeListener(LiveStateChangeListener listener) {
 		mListener = listener;
+		mNative.setLiveStateChangeListener(listener);
+		if (null != videoPusher) {
+			videoPusher.setLiveStateChangeListener(listener);
+		}
+		if (null != audioPusher) {
+			audioPusher.setLiveStateChangeListener(listener);
+		}
+
 	}
 
 }

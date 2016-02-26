@@ -1,20 +1,33 @@
 package com.jutong.live.jni;
 
-import android.os.Handler;
+import com.jutong.live.LiveStateChangeListener;
 
 public class PusherNative {
 
-	private Handler mHandler;
+	private LiveStateChangeListener mListener;
+	private int lastWhat;
 
-	public void setPusherHandler(Handler handler) {
-		mHandler = handler;
+	public PusherNative() {
+
 	}
 
-	public void postMessage(int what) {
-		mHandler.sendEmptyMessage(what);
+	public void setLiveStateChangeListener(LiveStateChangeListener listener) {
+		mListener = listener;
 	}
 
-	public native void prepare();
+	public void onPostNativeError(int code) {
+		if (null != mListener) {
+			mListener.onErrorPusher(code);
+		}
+	}
+
+	public void onPostNativeState(int state) {
+		if (state == 100) {
+			mListener.onStartPusher();
+		} else if (state == 101) {
+			mListener.onStopPusher();
+		}
+	}
 
 	public native void setVideoOptions(int width, int height, int bitrate,
 			int fps);

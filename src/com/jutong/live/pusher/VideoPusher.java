@@ -1,5 +1,6 @@
 package com.jutong.live.pusher;
 
+import java.util.Iterator;
 import java.util.List;
 
 import android.graphics.ImageFormat;
@@ -11,7 +12,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 
-import com.jutong.live.LiveStateChangeListener;
 import com.jutong.live.jni.PusherNative;
 import com.jutong.live.param.VideoParam;
 
@@ -22,6 +22,7 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 	private Camera mCamera;
 	private SurfaceHolder mHolder;
 	private VideoParam mParam;
+	private byte[] buffer;
 
 	public VideoPusher(SurfaceHolder surfaceHolder, VideoParam param,
 			PusherNative pusherNative) {
@@ -70,59 +71,49 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private void startPreview() {
 		if (mPreviewRunning) {
 			return;
 		}
 		try {
 			mCamera = Camera.open(mParam.getCameraId());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-		Camera.Parameters parameters = mCamera.getParameters();
-		parameters.setPreviewFormat(ImageFormat.NV21);
-		List<Size> supportedPreviewSizes = parameters
-				.getSupportedPreviewSizes();
-		boolean isSupportSize = false;
-		for (Size size : supportedPreviewSizes) {
-			if (mParam.getWidth() == size.width
-					&& mParam.getHeight() == size.height) {
-				isSupportSize = true;
-				Log.d(TAG, "支持预设预览分辨率");
-				break;
+			Camera.Parameters parameters = mCamera.getParameters();
+			parameters.setPreviewFormat(ImageFormat.NV21);
+			List<Size> supportedPreviewSizes = parameters
+					.getSupportedPreviewSizes();
+			Size size = supportedPreviewSizes.get(0);
+			int m = Math.abs(size.height * size.width - mParam.getHeight()
+					* mParam.getWidth());
+			supportedPreviewSizes.remove(0);
+			Iterator<Size> iterator = supportedPreviewSizes.iterator();
+			while (iterator.hasNext()) {
+				Size next = iterator.next();
+				int n = Math.abs(next.height * next.width - mParam.getHeight()
+						* mParam.getWidth());
+				if (n < m) {
+					m = n;
+					size = next;
+				}
 			}
-		}
-		if (isSupportSize) {
+			mParam.setHeight(size.height);
+			mParam.setWidth(size.width);
 			parameters.setPreviewSize(mParam.getWidth(), mParam.getHeight());
-		} else {
-			Size previewSize = parameters.getPreviewSize();
-			mParam.setHeight(previewSize.height);
-			mParam.setWidth(previewSize.width);
-			Log.d(TAG, "修改分辨率 width:" + previewSize.width + " height:"
-					+ previewSize.height);
-		}
-
-		List<Integer> supportedPreviewFrameRates = parameters
-				.getSupportedPreviewFrameRates();
-		boolean isSupportFps = supportedPreviewFrameRates.contains(mParam
-				.getFps());
-		if (isSupportFps) {
-			Log.d(TAG, "支持预设预览帧率");
-			parameters.setPreviewFrameRate(mParam.getFps());
-		} else {
-			Log.d(TAG, "修改预览帧率 fps:" + parameters.getPreviewFrameRate());
-			mParam.setFps(parameters.getPreviewFrameRate());
-		}
-		mCamera.setParameters(parameters);
-		mCamera.setPreviewCallback(this);
-		try {
+			Log.d(TAG, "预览分辨率 width:" + size.width + " height:" + size.height);
+			int range[] = new int[2];
+			parameters.getPreviewFpsRange(range);
+			Log.d(TAG, "预览帧率 fps:" + range[0] + " - " + range[1]);
+			mCamera.setParameters(parameters);
+			buffer = new byte[size.width * size.height * 3 / 2];
+			mCamera.setPreviewCallbackWithBuffer(this);
+			mCamera.addCallbackBuffer(buffer);
 			mCamera.setPreviewDisplay(mHolder);
-			mPreviewRunning = true;
 			mCamera.startPreview();
-			mNative.postMessage(LiveStateChangeListener.PREPARE_COMPLETE);
+			mPreviewRunning = true;
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			if (null != mListener) {
+				mListener.onErrorPusher(-100);
+			}
 		}
 	}
 
@@ -149,6 +140,7 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 		if (mPusherRuning) {
 			mNative.fireVideo(data);
 		}
+		camera.addCallbackBuffer(buffer);
 	}
 
 }
