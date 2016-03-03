@@ -5,6 +5,8 @@ public class AudioParam {
 	private int channel = 1;
 
 	public AudioParam(int sampleRate, int channel) {
+		this.sampleRate = sampleRate;
+		this.channel = channel;
 	}
 
 	public int getSampleRate() {

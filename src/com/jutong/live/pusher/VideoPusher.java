@@ -3,9 +3,7 @@ package com.jutong.live.pusher;
 import java.util.Iterator;
 import java.util.List;
 
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
@@ -24,6 +22,7 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 	private Camera mCamera;
 	private SurfaceHolder mHolder;
 	private VideoParam mParam;
+	private byte[] buffer;
 
 	public VideoPusher(SurfaceHolder surfaceHolder, VideoParam param,
 			PusherNative pusherNative) {
@@ -106,7 +105,10 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 			parameters.getPreviewFpsRange(range);
 			Log.d(TAG, "预览帧率 fps:" + range[0] + " - " + range[1]);
 			mCamera.setParameters(parameters);
-			mCamera.setPreviewCallback(this);
+			buffer = new byte[mParam.getWidth() * mParam.getHeight() * 3 / 2];
+			mCamera.addCallbackBuffer(buffer);
+			mCamera.setPreviewCallbackWithBuffer(this);
+//			mCamera.setPreviewCallback(this);
 			mCamera.setPreviewDisplay(mHolder);
 			mCamera.startPreview();
 			mPreviewRunning = true;
@@ -141,6 +143,7 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 		if (mPusherRuning) {
 			mNative.fireVideo(data);
 		}
+		camera.addCallbackBuffer(buffer);
 	}
 
 }

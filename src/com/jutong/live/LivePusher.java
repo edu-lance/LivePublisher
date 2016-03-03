@@ -26,10 +26,10 @@ public class LivePusher {
 		System.loadLibrary("myjni");
 	}
 
-	public LivePusher(int width, int height, int bitrate, int fps,
-			int sampleRate, int channel, int cameraId) {
+	public LivePusher(int width, int height, int bitrate, int fps, int channel,
+			int cameraId) {
 		videoParam = new VideoParam(width, height, bitrate, fps, cameraId);
-		audioParam = new AudioParam(sampleRate, channel);
+		audioParam = new AudioParam(44100, channel);
 		mNative = new PusherNative();
 	}
 

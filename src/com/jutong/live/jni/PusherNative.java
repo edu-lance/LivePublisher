@@ -18,7 +18,7 @@ public class PusherNative {
 	}
 
 	public void onPostNativeError(int code) {
-		Log.d("PusherNative", code+"");
+		Log.d("PusherNative", code + "");
 		if (null != mListener) {
 			mListener.onErrorPusher(code);
 		}
@@ -40,6 +40,7 @@ public class PusherNative {
 	public native void fireVideo(byte[] buffer);
 
 	public native void fireAudio(byte[] buffer, int len);
+
 
 	public native boolean startPusher(String url);
 

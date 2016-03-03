@@ -15,12 +15,12 @@ public class AudioPusher extends Pusher {
 	public AudioPusher(AudioParam param, PusherNative pusherNative) {
 		super(pusherNative);
 		mParam = param;
+		int channel = mParam.getChannel() == 1 ? AudioFormat.CHANNEL_IN_MONO
+				: AudioFormat.CHANNEL_IN_STEREO;
 		minBufferSize = AudioRecord.getMinBufferSize(mParam.getSampleRate(),
-				mParam.getChannel() == 1 ? AudioFormat.CHANNEL_IN_MONO
-						: AudioFormat.CHANNEL_IN_STEREO,
-				AudioFormat.ENCODING_PCM_16BIT);
+				channel, AudioFormat.ENCODING_PCM_16BIT);
 		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-				mParam.getSampleRate(), AudioFormat.CHANNEL_IN_MONO,
+				mParam.getSampleRate(), channel,
 				AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
 	}
 
