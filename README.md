@@ -1,8 +1,9 @@
 # LivePublisher
 Android RTMP推流程序。
 
-使用Camera+AudioRecord获取原始音视频数据,进行x264+faac对进行实时编码,然后通过librtmp上传至流媒体服务器。  
-待加入MediaCodec编码。  
+使用Camera+AudioRecord获取原始音视频数据,进行x264+faac对进行实时编码,然后通过librtmp上传至流媒体服务器。	
+自己做着玩的，java层只需要保留PushNativeJni，其他的可以随意封装。
+MediaCodec编码实现:https://github.com/EarthXiang/HardWareLive
 
 创建推流器:
 ```java  
