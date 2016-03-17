@@ -7,9 +7,9 @@ MediaCodec编码实现:https://github.com/EarthXiang/HardWareLive
 
 创建推流器:
 ```java  
-    //分辨率:480x320 fps:25 码率:480k 音频采样率:44.1k 声道数:1 默认摄像头:后置
+    //分辨率:480x320 fps:25 码率:480k 音频采样率:44.1k 默认摄像头:后置
     //如果设备不支持这些参数会自动对参数进行调整，满足设备的支持。
-    LivePusher livePusher = new LivePusher(480, 320, 480000, 25, 44100, 1,CameraInfo.CAMERA_FACING_BACK); 
+    LivePusher livePusher = new LivePusher(480, 320, 480000, 25, 44100,CameraInfo.CAMERA_FACING_BACK); 
 	livePusher.setLiveStateChangeListener(this);  
 	livePusher.prepare(mSurfaceHolder);
 ```
