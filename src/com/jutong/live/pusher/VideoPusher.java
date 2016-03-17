@@ -3,6 +3,8 @@ package com.jutong.live.pusher;
 import java.util.Iterator;
 import java.util.List;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -23,10 +25,12 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 	private SurfaceHolder mHolder;
 	private VideoParam mParam;
 	private byte[] buffer;
+	private Context mContext;
 
-	public VideoPusher(SurfaceHolder surfaceHolder, VideoParam param,
-			PusherNative pusherNative) {
+	public VideoPusher(Context context, SurfaceHolder surfaceHolder,
+			VideoParam param, PusherNative pusherNative) {
 		super(pusherNative);
+		mContext = context;
 		mParam = param;
 		mHolder = surfaceHolder;
 		surfaceHolder.addCallback(this);
@@ -34,8 +38,6 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 
 	@Override
 	public void startPusher() {
-		mNative.setVideoOptions(mParam.getWidth(), mParam.getHeight(),
-				mParam.getBitrate(), mParam.getFps());
 		startPreview();
 		mPusherRuning = true;
 	}
@@ -71,6 +73,7 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void startPreview() {
 		if (mPreviewRunning) {
 			return;
@@ -78,6 +81,11 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 		try {
 			mCamera = Camera.open(mParam.getCameraId());
 			Camera.Parameters parameters = mCamera.getParameters();
+			List<Integer> supportedPreviewFormats = parameters
+					.getSupportedPreviewFormats();
+			for (Integer integer : supportedPreviewFormats) {
+				System.out.println("支持:" + integer);
+			}
 			parameters.setPreviewFormat(ImageFormat.NV21);
 			List<Size> supportedPreviewSizes = parameters
 					.getSupportedPreviewSizes();
@@ -104,13 +112,15 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 			int range[] = new int[2];
 			parameters.getPreviewFpsRange(range);
 			Log.d(TAG, "预览帧率 fps:" + range[0] + " - " + range[1]);
+			setOrientation(parameters);
 			mCamera.setParameters(parameters);
 			buffer = new byte[mParam.getWidth() * mParam.getHeight() * 3 / 2];
 			mCamera.addCallbackBuffer(buffer);
 			mCamera.setPreviewCallbackWithBuffer(this);
-//			mCamera.setPreviewCallback(this);
 			mCamera.setPreviewDisplay(mHolder);
 			mCamera.startPreview();
+			mNative.setVideoOptions(mParam.getWidth(), mParam.getHeight(),
+					mParam.getBitrate(), mParam.getFps());
 			mPreviewRunning = true;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -118,6 +128,17 @@ public class VideoPusher extends Pusher implements Callback, PreviewCallback {
 				mListener.onErrorPusher(-100);
 			}
 		}
+	}
+
+	private void setOrientation(Camera.Parameters parameters) {
+		int orientation = 0;
+		if (mContext.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+			parameters.set("orientation", "portrait");
+			orientation = 90;
+		} else {
+			parameters.set("orientation", "landscape");
+		}
+		mCamera.setDisplayOrientation(orientation);
 	}
 
 	@Override

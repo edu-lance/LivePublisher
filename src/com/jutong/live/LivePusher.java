@@ -1,7 +1,6 @@
 package com.jutong.live;
 
-import android.hardware.Camera;
-import android.media.AudioRecord;
+import android.content.Context;
 import android.view.SurfaceHolder;
 
 import com.jutong.live.jni.PusherNative;
@@ -13,29 +12,29 @@ import com.jutong.live.pusher.VideoPusher;
 public class LivePusher {
 
 	private final static String TAG = "LivePusher";
-	private Camera mCamera;
-	private AudioRecord audioRecord;
 	private VideoParam videoParam;
 	private AudioParam audioParam;
 	private VideoPusher videoPusher;
 	private PusherNative mNative;
 	private AudioPusher audioPusher;
 	private LiveStateChangeListener mListener;
+	private Context mContext;
 
 	static {
-		System.loadLibrary("myjni");
+		System.loadLibrary("Pusher");
 	}
 
-	public LivePusher(int width, int height, int bitrate, int fps, int channel,
+	public LivePusher(Context context,int width, int height, int bitrate, int fps, int sampleRate,
 			int cameraId) {
+		mContext = context;
 		videoParam = new VideoParam(width, height, bitrate, fps, cameraId);
-		audioParam = new AudioParam(44100, channel);
+		audioParam = new AudioParam(sampleRate, 1);
 		mNative = new PusherNative();
 	}
 
 	public void prepare(SurfaceHolder surfaceHolder) {
 		surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		videoPusher = new VideoPusher(surfaceHolder, videoParam, mNative);
+		videoPusher = new VideoPusher(mContext,surfaceHolder, videoParam, mNative);
 		audioPusher = new AudioPusher(audioParam, mNative);
 		videoPusher.setLiveStateChangeListener(mListener);
 		audioPusher.setLiveStateChangeListener(mListener);

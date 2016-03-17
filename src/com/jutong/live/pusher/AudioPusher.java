@@ -15,13 +15,14 @@ public class AudioPusher extends Pusher {
 	public AudioPusher(AudioParam param, PusherNative pusherNative) {
 		super(pusherNative);
 		mParam = param;
-		int channel = mParam.getChannel() == 1 ? AudioFormat.CHANNEL_IN_MONO
-				: AudioFormat.CHANNEL_IN_STEREO;
+//		int channel = mParam.getChannel() == 1 ? AudioFormat.CHANNEL_IN_MONO
+//				: AudioFormat.CHANNEL_IN_STEREO;
 		minBufferSize = AudioRecord.getMinBufferSize(mParam.getSampleRate(),
-				channel, AudioFormat.ENCODING_PCM_16BIT);
+				AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-				mParam.getSampleRate(), channel,
+				mParam.getSampleRate(), AudioFormat.CHANNEL_IN_MONO,
 				AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
+		mNative.setAudioOptions(mParam.getSampleRate(), mParam.getChannel());
 	}
 
 	@Override
@@ -29,7 +30,6 @@ public class AudioPusher extends Pusher {
 		if (null == audioRecord) {
 			return;
 		}
-		mNative.setAudioOptions(mParam.getSampleRate(), mParam.getChannel());
 		mPusherRuning = true;
 		if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_STOPPED) {
 			try {
@@ -62,13 +62,14 @@ public class AudioPusher extends Pusher {
 		mPusherRuning = false;
 		if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_STOPPED)
 			audioRecord.release();
+		audioRecord = null;
 	}
 
 	class AudioRecordTask implements Runnable {
 
 		@Override
 		public void run() {
-			while (mPusherRuning) {
+			while (mPusherRuning && audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
 				byte[] buffer = new byte[2048];
 				int len = audioRecord.read(buffer, 0, buffer.length);
 				if (0 < len) {

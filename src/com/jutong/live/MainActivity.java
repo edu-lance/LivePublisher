@@ -1,16 +1,11 @@
 package com.jutong.live;
 
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
-import android.hardware.Camera;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.hardware.Camera.CameraInfo;
-import android.hardware.Camera.PictureCallback;
-import android.media.FaceDetector;
-import android.media.FaceDetector.Face;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -22,7 +17,7 @@ import android.widget.Toast;
 
 import com.example.myrtmp.R;
 
-public class MainActivity extends FragmentActivity implements OnClickListener,
+public class MainActivity extends Activity implements OnClickListener,
 		Callback, LiveStateChangeListener {
 
 	private Button button01;
@@ -63,6 +58,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		button01 = (Button) findViewById(R.id.button_first);
 		button01.setOnClickListener(this);
 		findViewById(R.id.button_take).setOnClickListener(
@@ -76,12 +72,18 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		mSurfaceView = (SurfaceView) this.findViewById(R.id.surface);
 		mSurfaceHolder = mSurfaceView.getHolder();
 		mSurfaceHolder.addCallback(this);
-		livePusher = new LivePusher(480, 320, 480000, 25, 44100, 1,
-				CameraInfo.CAMERA_FACING_BACK);
+		livePusher = new LivePusher(this,320, 240, 320000, 15, 8000,
+				CameraInfo.CAMERA_FACING_FRONT);
 		livePusher.setLiveStateChangeListener(this);
 		livePusher.prepare(mSurfaceHolder);
 
 	}
+
+	// @Override
+	// public void onRequestPermissionsResult(int requestCode,
+	// String[] permissions, int[] grantResults) {
+	// super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+	// }
 
 	@Override
 	protected void onDestroy() {
@@ -98,8 +100,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		} else {
 			button01.setText("停止");
 			isStart = true;
-			livePusher
-					.startPusher("rtmp://xxxx/xx/xx");
+			livePusher.startPusher("rtmp://xxxx/xxx");
 
 		}
 	}
@@ -125,6 +126,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 	 */
 	@Override
 	public void onErrorPusher(int code) {
+		System.out.println("code:" + code);
 		mHandler.sendEmptyMessage(code);
 	}
 
@@ -143,4 +145,5 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 	public void onStopPusher() {
 		Log.d("MainActivity", "结束推流");
 	}
+
 }

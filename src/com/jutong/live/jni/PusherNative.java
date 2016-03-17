@@ -7,7 +7,6 @@ import com.jutong.live.LiveStateChangeListener;
 public class PusherNative {
 
 	private LiveStateChangeListener mListener;
-	private int lastWhat;
 
 	public PusherNative() {
 
