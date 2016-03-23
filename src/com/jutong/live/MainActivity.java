@@ -28,6 +28,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	private Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
+			
 			case -100:
 				Toast.makeText(MainActivity.this, "视频预览开始失败", 0).show();
 				livePusher.stopPusher();
@@ -54,11 +55,11 @@ public class MainActivity extends Activity implements OnClickListener,
 		};
 	};
 
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		button01 = (Button) findViewById(R.id.button_first);
 		button01.setOnClickListener(this);
 		findViewById(R.id.button_take).setOnClickListener(
@@ -100,7 +101,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		} else {
 			button01.setText("停止");
 			isStart = true;
-			livePusher.startPusher("rtmp://xxxx/xxx");
+			livePusher.startPusher("rtmp://xxx/xxx/xxx");//TODO: 设置流媒体服务器地址
 
 		}
 	}
@@ -130,6 +131,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		mHandler.sendEmptyMessage(code);
 	}
 
+	
 	/**
 	 * 可能运行在子线程
 	 */

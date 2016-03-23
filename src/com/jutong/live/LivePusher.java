@@ -1,6 +1,6 @@
 package com.jutong.live;
 
-import android.content.Context;
+import android.app.Activity;
 import android.view.SurfaceHolder;
 
 import com.jutong.live.jni.PusherNative;
@@ -18,15 +18,15 @@ public class LivePusher {
 	private PusherNative mNative;
 	private AudioPusher audioPusher;
 	private LiveStateChangeListener mListener;
-	private Context mContext;
+	private Activity mActivity;
 
 	static {
 		System.loadLibrary("Pusher");
 	}
 
-	public LivePusher(Context context,int width, int height, int bitrate, int fps, int sampleRate,
-			int cameraId) {
-		mContext = context;
+	public LivePusher(Activity activity, int width, int height, int bitrate,
+			int fps, int sampleRate, int cameraId) {
+		mActivity = activity;
 		videoParam = new VideoParam(width, height, bitrate, fps, cameraId);
 		audioParam = new AudioParam(sampleRate, 1);
 		mNative = new PusherNative();
@@ -34,7 +34,8 @@ public class LivePusher {
 
 	public void prepare(SurfaceHolder surfaceHolder) {
 		surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		videoPusher = new VideoPusher(mContext,surfaceHolder, videoParam, mNative);
+		videoPusher = new VideoPusher(mActivity, surfaceHolder, videoParam,
+				mNative);
 		audioPusher = new AudioPusher(audioParam, mNative);
 		videoPusher.setLiveStateChangeListener(mListener);
 		audioPusher.setLiveStateChangeListener(mListener);
@@ -57,6 +58,7 @@ public class LivePusher {
 	}
 
 	public void relase() {
+		mActivity = null;
 		stopPusher();
 		videoPusher.setLiveStateChangeListener(null);
 		audioPusher.setLiveStateChangeListener(null);
