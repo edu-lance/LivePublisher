@@ -55,7 +55,6 @@ public class MainActivity extends Activity implements OnClickListener,
 		};
 	};
 
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,7 +72,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		mSurfaceView = (SurfaceView) this.findViewById(R.id.surface);
 		mSurfaceHolder = mSurfaceView.getHolder();
 		mSurfaceHolder.addCallback(this);
-		livePusher = new LivePusher(this,320, 240, 320000, 15, 8000,
+		livePusher = new LivePusher(this,960, 720, 1024000, 15, 8000,
 				CameraInfo.CAMERA_FACING_FRONT);
 		livePusher.setLiveStateChangeListener(this);
 		livePusher.prepare(mSurfaceHolder);
