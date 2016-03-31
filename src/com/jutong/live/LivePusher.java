@@ -25,10 +25,10 @@ public class LivePusher {
 	}
 
 	public LivePusher(Activity activity, int width, int height, int bitrate,
-			int fps, int sampleRate, int cameraId) {
+			int fps, int cameraId) {
 		mActivity = activity;
 		videoParam = new VideoParam(width, height, bitrate, fps, cameraId);
-		audioParam = new AudioParam(sampleRate, 1);
+		audioParam = new AudioParam();
 		mNative = new PusherNative();
 	}
 

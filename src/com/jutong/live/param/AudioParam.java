@@ -9,6 +9,9 @@ public class AudioParam {
 		this.channel = channel;
 	}
 
+	public AudioParam() {
+	}
+
 	public int getSampleRate() {
 		return sampleRate;
 	}

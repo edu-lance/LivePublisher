@@ -40,6 +40,7 @@ public class PusherNative {
 
 	public native void fireAudio(byte[] buffer, int len);
 
+	public native int getInputSamples();
 
 	public native boolean startPusher(String url);
 
