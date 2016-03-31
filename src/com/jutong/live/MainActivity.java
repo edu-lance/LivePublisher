@@ -100,7 +100,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		} else {
 			button01.setText("停止");
 			isStart = true;
-			livePusher.startPusher("rtmp://192.168.1.136/myapp/liuxiang");// TODO: 设置流媒体服务器地址
+			livePusher.startPusher("rtmp://xxx/xxx/xxx");// TODO: 设置流媒体服务器地址
 
 		}
 	}
