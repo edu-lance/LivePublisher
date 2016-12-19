@@ -15,7 +15,7 @@ MediaCodec编码实现:https://github.com/EarthXiang/HardWareLive
 ```
 开始推流
 ```java
-    livePusher.startPusher("rtmp://ip:port/hub/stream");
+    livePusher.startPusher("rtmp://ip:port/app/name");
 ```
 结束推流
 ```java
